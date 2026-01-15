@@ -32,34 +32,34 @@ class BaseElectionCreatorMixIn:
         cls.date_str = cls.date.strftime("%Y-%m-%d")
 
         cls.election_type1, _ = ElectionType.objects.get_or_create(
-            election_type="local"
+            election_type="municipal"
         )
         cls.org1 = Organisation.objects.create(
             official_identifier="TEST1",
-            organisation_type="local-authority",
-            official_name="Test Council",
-            slug="test",
-            territory_code="ENG",
-            election_name="Test Council local elections",
+            organisation_type="municipal",
+            official_name="Test City",
+            slug="test-city",
+            territory_code="ON",
+            election_name="Test City municipal elections",
             start_date=date(2016, 10, 1),
         )
 
         cls.elected_role1 = ElectedRole.objects.create(
             election_type=cls.election_type1,
             organisation=cls.org1,
-            elected_title="Local Councillor",
-            elected_role_name="Councillor for Test Council",
+            elected_title="City Councillor",
+            elected_role_name="Councillor for Test City",
         )
 
         cls.div_set = OrganisationDivisionSetFactory(organisation=cls.org1)
         cls.org_div_1 = OrganisationDivisionFactory(
             divisionset=cls.div_set,
-            name="Test Div 1",
-            slug="test-div",
+            name="Ward 1",
+            slug="ward-1",
             seats_total=3,
         )
         cls.org_div_2 = OrganisationDivisionFactory(
-            divisionset=cls.div_set, name="Test Div 2", slug="test-div-2"
+            divisionset=cls.div_set, name="Ward 2", slug="ward-2"
         )
 
         cls.base_data = {
@@ -70,26 +70,26 @@ class BaseElectionCreatorMixIn:
 
         cls.testshire_org = Organisation.objects.create(
             official_identifier="TEST1SHIRE",
-            organisation_type="local-authority",
-            official_name="Testshire County Council",
-            slug="testshire",
-            territory_code="ENG",
-            election_name="Testshire County Council local elections",
+            organisation_type="municipal",
+            official_name="Testville City",
+            slug="testville",
+            territory_code="ON",
+            election_name="Testville City municipal elections",
             start_date=date(2016, 10, 1),
         )
         ElectedRole.objects.create(
             election_type=cls.election_type1,
             organisation=cls.testshire_org,
-            elected_title="Local Councillor",
-            elected_role_name="Councillor for Testshire Council",
+            elected_title="City Councillor",
+            elected_role_name="Councillor for Testville City",
         )
         cls.testshire_div_set = OrganisationDivisionSetFactory(
             organisation=cls.testshire_org
         )
         cls.testshire_div = OrganisationDivisionFactory(
             divisionset=cls.testshire_div_set,
-            name="Testshire Div 1",
-            slug="testshire-div",
+            name="Ward 3",
+            slug="ward-3",
             seats_total=3,
         )
 

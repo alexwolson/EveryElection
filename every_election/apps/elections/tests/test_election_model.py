@@ -22,27 +22,27 @@ class TestElectionModel(BaseElectionCreatorMixIn, TestCase):
         super().setUp()
         Election.private_objects.all().delete()
         self.election_group = ElectionBuilder(
-            "local", "2017-06-08"
+            "municipal", "2017-06-08"
         ).build_election_group()
         self.org_group = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.org1)
             .build_organisation_group(self.election_group)
         )
         self.ballot = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.org1)
             .with_division(self.org_div_1)
             .build_ballot(self.org_group)
         )
         self.testshire_org_group = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.testshire_org)
             .build_organisation_group(self.election_group)
         )
 
         self.testshire_ballot = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.testshire_org)
             .with_division(self.testshire_div)
             .build_ballot(self.testshire_org_group)

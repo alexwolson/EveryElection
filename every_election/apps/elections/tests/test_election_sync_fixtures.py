@@ -36,7 +36,7 @@ def get_local_ballot():
     ).data
 
     election_type = ElectionTypeFactory(
-        **{"name": "Local elections", "election_type": "local"}
+        **{"name": "Municipal", "election_type": "municipal"}
     )
     elected_role = ElectedRoleFactory(
         elected_title="Local Councillor",

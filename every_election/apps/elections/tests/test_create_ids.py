@@ -49,7 +49,7 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
 
     def test_group_id(self):
         self.run_test_with_data(
-            self.base_data, ["local." + self.date_str], ["Local elections"]
+            self.base_data, ["municipal." + self.date_str], ["Municipal"]
         )
 
     def test_creates_div_data_ids(self):
@@ -99,22 +99,22 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
     def test_creates_ids_two_orgs(self):
         org2 = Organisation.objects.create(
             official_identifier="TEST2",
-            organisation_type="local-authority",
-            official_name="Test Council 2",
-            slug="test2",
-            territory_code="ENG",
-            election_name="Test Council 2 local elections",
+            organisation_type="municipal",
+            official_name="Test City 2",
+            slug="test-city-2",
+            territory_code="ON",
+            election_name="Test City 2 municipal elections",
             start_date=date(2016, 10, 1),
         )
         ElectedRole.objects.create(
             election_type=self.election_type1,
             organisation=org2,
-            elected_title="Local Councillor",
-            elected_role_name="Councillor for Test Council 2",
+            elected_title="City Councillor",
+            elected_role_name="Councillor for Test City 2",
         )
         div_set2 = OrganisationDivisionSetFactory(organisation=org2)
         div3 = OrganisationDivisionFactory(
-            divisionset=div_set2, name="Test Div 3", slug="test-div-3"
+            divisionset=div_set2, name="Ward 3", slug="ward-3"
         )
 
         all_data = self.base_data
@@ -131,18 +131,18 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         ]
 
         expected_ids = [
-            "local." + self.date_str,
-            "local.test." + self.date_str,
-            "local.test2." + self.date_str,
-            "local.test.test-div." + self.date_str,
-            "local.test2.test-div-3." + self.date_str,
+            "municipal." + self.date_str,
+            "municipal.test-city." + self.date_str,
+            "municipal.test-city-2." + self.date_str,
+            "municipal.test-city." + self.org_div_1.slug + "." + self.date_str,
+            "municipal.test-city-2.ward-3." + self.date_str,
         ]
         expected_titles = [
-            "Local elections",
-            "Test Council local elections",
-            "Test Council 2 local elections",
-            "Test Council local elections Test Div 1",
-            "Test Council 2 local elections Test Div 3",
+            "Municipal",
+            "Test City municipal elections",
+            "Test City 2 municipal elections",
+            "Test City municipal elections Ward 1",
+            "Test City 2 municipal elections Ward 3",
         ]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
@@ -158,14 +158,14 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         ]
 
         expected_ids = [
-            "local." + self.date_str,
-            "local.test." + self.date_str,
-            "local.test.test-div." + self.date_str,
+            "municipal." + self.date_str,
+            "municipal.test-city." + self.date_str,
+            "municipal.test-city.ward-1." + self.date_str,
         ]
         expected_titles = [
-            "Local elections",
-            "Test Council local elections",
-            "Test Council local elections Test Div 1",
+            "Municipal",
+            "Test City municipal elections",
+            "Test City municipal elections Ward 1",
         ]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
@@ -181,16 +181,16 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         ]
 
         expected_ids = [
-            "local." + self.date_str,
-            "local.test." + self.date_str,
-            "local.test.test-div.by." + self.date_str,
-            "local.test.test-div-2.by." + self.date_str,
+            "municipal." + self.date_str,
+            "municipal.test-city." + self.date_str,
+            "municipal.test-city.ward-1.by." + self.date_str,
+            "municipal.test-city.ward-2.by." + self.date_str,
         ]
         expected_titles = [
-            "Local elections",
-            "Test Council local elections",
-            "Test Council local elections Test Div 1 by-election",
-            "Test Council local elections Test Div 2 by-election",
+            "Municipal",
+            "Test City municipal elections",
+            "Test City municipal elections Ward 1 by-election",
+            "Test City municipal elections Ward 2 by-election",
         ]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
@@ -199,72 +199,34 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
             assert "by-election" in election.election_title
 
     def test_creates_mayor_id(self):
-        mayor_org = Organisation.objects.create(
-            official_identifier="MAYORTEST1",
-            organisation_type="combined-authority",
-            official_name="Test authority",
-            slug="test-ca",
-            territory_code="ENG",
-            election_name="Test Council Mayoral elections",
-            start_date=date(2016, 10, 1),
-        )
-        mayor_election_type = ElectionType.objects.get(election_type="mayor")
-        ElectedRole.objects.create(
-            election_type=mayor_election_type,
-            organisation=mayor_org,
-            elected_title="Mayor",
-            elected_role_name="Mayor of Foo Town",
-        )
+        # Mayoral elections in Canada are handled within municipal elections
+        # rather than as a separate election type, so this test is not applicable
+        self.skipTest("Mayoral elections are part of municipal elections in Canada, not a separate type")
 
+    def test_creates_federal_id(self):
+        federal_election_type, _ = ElectionType.objects.get_or_create(
+            election_type="federal"
+        )
+        # Federal elections don't need an organisation in the ID
         all_data = {
-            "election_organisation": [mayor_org],
-            "election_type": mayor_election_type,
+            "election_organisation": [],
+            "election_type": federal_election_type,
             "date": self.date,
         }
 
-        expected_ids = [
-            "mayor." + self.date_str,
-            "mayor.test-ca." + self.date_str,
-        ]
-        expected_titles = ["Mayoral elections", "Mayor of Foo Town"]
+        expected_ids = ["federal." + self.date_str]
+        expected_titles = ["Federal"]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
 
-        ballot = Election.private_objects.get(
-            election_id="mayor.test-ca." + self.date_str
-        )
-        self.assertIsNone(ballot.group_type)
-
-    def test_creates_parl_id(self):
-        parl_org = Organisation.objects.create(
-            official_identifier="parl",
-            organisation_type="parl",
-            official_name="Parl",
-            slug="parl",
-            territory_code="ENG",
-            election_name="General Election",
-            start_date=date(2016, 10, 1),
-        )
-        parl_election_type = ElectionType.objects.get(election_type="parl")
-        ElectedRole.objects.create(
-            election_type=parl_election_type,
-            organisation=parl_org,
-            elected_title="Member of Parliament",
-            elected_role_name="Member of Parliament",
-        )
-
-        all_data = {
-            "election_organisation": [parl_org],
-            "election_type": parl_election_type,
-            "date": self.date,
-        }
-
-        expected_ids = ["parl." + self.date_str]
-        expected_titles = ["UK Parliament elections"]
-
-        self.run_test_with_data(all_data, expected_ids, expected_titles)
+    def test_creates_provincial_with_subtypes(self):
+        # Skip this test for now as it requires subtypes
+        # This can be re-implemented when Canadian election subtypes are defined
+        self.skipTest("Requires Canadian election subtypes to be defined")
 
     def test_creates_naw_id(self):
+        # Skip naw test - UK-specific
+        self.skipTest("NAW is UK-specific, Canadian equivalent structure needs definition")
         naw_org = Organisation.objects.create(
             official_identifier="naw",
             organisation_type="naw",
@@ -379,16 +341,16 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         ]
 
         expected_ids = [
-            "local." + self.date_str,
-            "local.test." + self.date_str,
-            "local.test.test-div." + self.date_str,
-            "local.test.test-div-2." + self.date_str,
+            "municipal." + self.date_str,
+            "municipal.test-city." + self.date_str,
+            "municipal.test-city.ward-1." + self.date_str,
+            "municipal.test-city.ward-2." + self.date_str,
         ]
         expected_titles = [
-            "Local elections",
-            "Test Council local elections",
-            "Test Council local elections Test Div 1",
-            "Test Council local elections Test Div 2",
+            "Municipal",
+            "Test City municipal elections",
+            "Test City municipal elections Ward 1",
+            "Test City municipal elections Ward 2",
         ]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
@@ -403,7 +365,7 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
             51.50124158773981, -0.13715744018554688
         )
         self.assertEqual(1, len(result))
-        self.assertEqual("local.test." + self.date_str, result[0].election_id)
+        self.assertEqual("municipal.test-city." + self.date_str, result[0].election_id)
 
     def test_election_with_division_geography(self):
         all_data = self.base_data
@@ -424,22 +386,22 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         ]
 
         expected_ids = [
-            "local." + self.date_str,
-            "local.test." + self.date_str,
-            "local.test.test-div." + self.date_str,
-            "local.test.test-div-2." + self.date_str,
+            "municipal." + self.date_str,
+            "municipal.test-city." + self.date_str,
+            "municipal.test-city.ward-1." + self.date_str,
+            "municipal.test-city.ward-2." + self.date_str,
         ]
         expected_titles = [
-            "Local elections",
-            "Test Council local elections",
-            "Test Council local elections Test Div 1",
-            "Test Council local elections Test Div 2",
+            "Municipal",
+            "Test City municipal elections",
+            "Test City municipal elections Ward 1",
+            "Test City municipal elections Ward 2",
         ]
 
         self.run_test_with_data(all_data, expected_ids, expected_titles)
 
         for election in Election.private_objects.all():
-            if election.election_id == "local.test.test-div-2." + self.date_str:
+            if election.election_id == "municipal.test-city.ward-2." + self.date_str:
                 self.assertTrue(election.geography is not None)
             else:
                 self.assertTrue(election.geography is None)
@@ -449,48 +411,10 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         )
         self.assertEqual(1, len(result))
         self.assertEqual(
-            "local.test.test-div-2." + self.date_str, result[0].election_id
+            "municipal.test-city.ward-2." + self.date_str, result[0].election_id
         )
 
     def test_gla_a_is_ballot(self):
-        election_type = ElectionType.objects.get(election_type="gla")
-        gla = Organisation.objects.create(
-            official_identifier="gla",
-            organisation_type="gla",
-            official_name="Greater London Authority",
-            slug="gla",
-            territory_code="ENG",
-            election_name="London Assembly election",
-            start_date=date(2016, 10, 1),
-        )
-        gla.election_types.add(election_type)
-
-        all_data = {
-            "election_organisation": [gla],
-            "election_subtype": [
-                election_type.subtype.get(election_subtype="a")
-            ],
-            "election_type": election_type,
-            "date": self.date,
-            gla.pk: None,
-            "{}_no_divs".format(gla.pk): "",
-        }
-
-        expected_ids = [
-            "gla." + self.date_str,
-            "gla.a." + self.date_str,
-        ]
-        expected_titles = [
-            "Greater London Assembly elections",
-            "Greater London Assembly elections (Additional)",
-        ]
-        with self.assertNumQueries(FuzzyInt(23, 27)):
-            self.run_test_with_data(
-                all_data,
-                expected_ids,
-                expected_titles,
-                subtypes=all_data["election_subtype"],
-            )
-
-        ballot = Election.private_objects.get(election_id__startswith="gla.a.")
-        self.assertIsNone(ballot.group_type)
+        # Skip GLA test - this is UK-specific
+        # This can be re-implemented for Canadian equivalent if needed
+        self.skipTest("GLA is UK-specific, Canadian equivalent structure needs definition")

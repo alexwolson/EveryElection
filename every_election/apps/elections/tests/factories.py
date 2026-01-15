@@ -22,8 +22,8 @@ class ElectionTypeFactory(factory.django.DjangoModelFactory):
         model = ElectionType
         django_get_or_create = ("election_type",)
 
-    name = "Local elections"
-    election_type = "local"
+    name = "Municipal"
+    election_type = "municipal"
     # default_voting_system
 
 
@@ -49,7 +49,7 @@ class ElectionFactory(factory.django.DjangoModelFactory):
         return model_class.private_objects
 
     election_id = factory.Sequence(
-        lambda n: "local.place-name-%d.2017-03-23" % n
+        lambda n: "municipal.test-city-%d.2017-03-23" % n
     )
     election_title = factory.Sequence(lambda n: "Election %d" % n)
     election_type = factory.SubFactory(ElectionTypeFactory)
@@ -63,7 +63,7 @@ class ElectionFactory(factory.django.DjangoModelFactory):
     seats_total = 1
     group = factory.SubFactory(
         "elections.tests.factories.ElectionFactory",
-        election_id="local.2017-03-23",
+        election_id="municipal.2017-03-23",
         group=None,
         group_type="election",
     )
