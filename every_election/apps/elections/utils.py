@@ -13,12 +13,16 @@ from organisations.models import (
     OrganisationDivision,
     OrganisationDivisionSet,
 )
-from uk_election_ids.datapackage import ELECTION_TYPES
-from uk_election_ids.election_ids import IdBuilder
-from uk_election_ids.metadata_tools import (
-    IDRequirementsMatcher,
-    VotingSystemMatcher,
-)
+from elections.ca_election_ids import CaIdBuilder
+from elections.ca_election_metadata import CA_ELECTION_TYPES
+
+# TODO: Remove UK-specific imports once fully migrated
+# from uk_election_ids.datapackage import ELECTION_TYPES
+# from uk_election_ids.election_ids import IdBuilder
+# from uk_election_ids.metadata_tools import (
+#     IDRequirementsMatcher,
+#     VotingSystemMatcher,
+# )
 
 CACHE = {
     "voting_systems": {},
@@ -39,28 +43,24 @@ def reset_cache():
 
 
 def election_type_has_divisions(election_type: ElectionType):
-    return ELECTION_TYPES.get(election_type.election_type, {}).get(
+    return CA_ELECTION_TYPES.get(election_type.election_type, {}).get(
         "can_have_divs", True
     )
 
 
 def get_voter_id_requirement(election: Election) -> Optional[str]:
     """
-    Given an Election object, if eligible for voter ID return the related voter ID legislation code
+    TODO: Implement Canadian voter ID requirements.
+    
+    Canadian elections have different ID requirements than UK elections.
+    This needs to be implemented based on Canadian electoral law.
+    
+    For now, returns None (no ID requirement).
     """
-    can_have_divs = election_type_has_divisions(election.election_type)
-    if can_have_divs and not election.division:
-        return None
-
-    nation = None
-    if can_have_divs:
-        nation = election.division.territory_code
-        if not nation:
-            return None
-
-    matcher = IDRequirementsMatcher(election.election_id, nation)
-
-    return matcher.get_id_requirements()
+    # TODO: Implement Canadian voter ID requirements
+    # Canadian elections typically require one piece of ID with name and address,
+    # or two pieces of ID (one with name, one with address)
+    return None
 
 
 def get_cached_election_type(election_type):
@@ -123,10 +123,10 @@ class ElectionBuilder:
             date = date.date()
         self.date = date
 
-        # Initialise an IdBuiler object.
+        # Initialise a CaIdBuilder object.
         # We'll build up an id string progressively
         # as we add properties to the election object
-        self.id = IdBuilder(self.election_type.election_type, self.date)
+        self.id = CaIdBuilder(self.election_type.election_type, self.date)
 
         # core election data
         self.subtype = None
@@ -247,14 +247,18 @@ class ElectionBuilder:
         )
 
     def get_voting_system(self):
+        """
+        Get the voting system for this election.
+        
+        TODO: Implement Canadian voting system matcher.
+        For now, returns the default voting system for the election type.
+        """
         if not self.organisation:
             return None
-        try:
-            return VotingSystemMatcher(
-                self.id.ids[-1], nation=self.organisation.territory_code
-            ).get_voting_system()
-        except ValueError:
-            return None
+        # Return default voting system for Canadian election type
+        return CA_ELECTION_TYPES.get(
+            self.election_type.election_type, {}
+        ).get("default_voting_system", "FPTP")
 
     def get_seats_contested(self):
         if not self.seats_contested:
@@ -421,10 +425,11 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
         # GROUP 1
         # Make a group ID for the date and election type
         builder = ElectionBuilder(all_data["election_type"], all_data["date"])
+        # For Canadian elections: federal doesn't need organisation in group ID,
+        # but provincial, territorial, and municipal do
         if all_data["election_type"].election_type not in [
-            "local",
-            "mayor",
-            "pcc",
+            "federal",
+            "municipal",  # Municipal elections may not always need org in group ID
         ]:
             builder.with_organisation(organisation)
         date_id = builder.build_election_group()
@@ -447,10 +452,10 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
                 group_id = date_id
 
         # Special case where we have no divs for an org that should have them.
-        # This is generally due to an upcoming ECO that's not been Made yet.
+        # This is generally due to an upcoming boundary change that's not been finalized yet.
         # In this case, we want to make an org ID but no div IDs
         if (
-            all_data["election_type"].election_type == "local"
+            all_data["election_type"].election_type in ["municipal", "provincial", "territorial"]
             and f"{organisation.pk}_no_divs" in all_data
         ):
             group_id = (
@@ -462,17 +467,20 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
             group_id.metadata = get_or_create_eco_group_metadata()
             all_ids.append(group_id)
 
-        if all_data["election_type"].election_type in ["mayor", "pcc"]:
-            group_id = date_id
-            mayor_id = (
-                ElectionBuilder(all_data["election_type"], all_data["date"])
-                .with_organisation(organisation)
-                .with_source(all_data.get("source", ""))
-                .with_snooped_election(all_data.get("radar_id", None))
-                .build_ballot(group_id)
-            )
-            if mayor_id.election_id not in [e.election_id for e in all_ids]:
-                all_ids.append(mayor_id)
+        # TODO: Handle Canadian-specific election types that don't have divisions
+        # (e.g., mayoral elections, if they're separate from municipal)
+        # For now, this is commented out as Canadian structure may differ
+        # if all_data["election_type"].election_type in ["mayor"]:
+        #     group_id = date_id
+        #     mayor_id = (
+        #         ElectionBuilder(all_data["election_type"], all_data["date"])
+        #         .with_organisation(organisation)
+        #         .with_source(all_data.get("source", ""))
+        #         .with_snooped_election(all_data.get("radar_id", None))
+        #         .build_ballot(group_id)
+        #     )
+        #     if mayor_id.election_id not in [e.election_id for e in all_ids]:
+        #         all_ids.append(mayor_id)
 
         if subtypes:
             for subtype in subtypes:

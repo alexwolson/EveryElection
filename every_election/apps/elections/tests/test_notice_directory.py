@@ -9,24 +9,24 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
         super().setUp()
 
         self.election = ElectionBuilder(
-            "local", "2017-06-08"
+            "municipal", "2017-06-08"
         ).build_election_group()
 
         self.organisation = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.org1)
             .build_organisation_group(None)
         )
 
         self.ballot1 = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.org1)
             .with_division(self.org_div_1)
             .build_ballot(None)
         )
 
         self.ballot2 = (
-            ElectionBuilder("local", "2017-06-08")
+            ElectionBuilder("municipal", "2017-06-08")
             .with_organisation(self.org1)
             .with_division(self.org_div_2)
             .build_ballot(None)
