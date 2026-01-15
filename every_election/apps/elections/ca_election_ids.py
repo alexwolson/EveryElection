@@ -29,6 +29,17 @@ class CaIdBuilder:
     - Subtype group: [type].[subtype].[date]
     - Organisation group: [type].[jurisdiction].[date]
     - Ballot: [type].[jurisdiction].[division].[date] or [type].[jurisdiction].[division].by.[date]
+    
+    Usage constraints:
+    - with_organisation() should be called before with_division() when both are needed
+    - with_division() requires with_organisation() to have been called first for the ballot ID to be valid
+    - Methods can be chained in any order, but the logical hierarchy should be respected
+    - The builder validates that required components are present when building specific ID types
+    
+    Example:
+        builder = CaIdBuilder("municipal", date(2022, 10, 24))
+        builder.with_organisation("toronto").with_division("ward-1")
+        ballot_id = builder.ballot_id  # Returns: municipal.toronto.ward-1.2022-10-24
     """
 
     VALID_ELECTION_TYPES = set(CA_ELECTION_TYPES.keys())

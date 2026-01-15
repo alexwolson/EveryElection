@@ -10,21 +10,25 @@ CA_ELECTION_TYPES = {
         "name": "Federal",
         "can_have_divs": True,
         "default_voting_system": "FPTP",  # First Past the Post
+        "subtypes": [],
     },
     "provincial": {
         "name": "Provincial",
         "can_have_divs": True,
         "default_voting_system": "FPTP",
+        "subtypes": [],
     },
     "territorial": {
         "name": "Territorial",
         "can_have_divs": True,
         "default_voting_system": "FPTP",
+        "subtypes": [],
     },
     "municipal": {
         "name": "Municipal",
         "can_have_divs": True,
         "default_voting_system": "FPTP",
+        "subtypes": [],
     },
 }
 
