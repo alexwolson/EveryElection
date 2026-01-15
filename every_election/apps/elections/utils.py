@@ -425,12 +425,9 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
         # GROUP 1
         # Make a group ID for the date and election type
         builder = ElectionBuilder(all_data["election_type"], all_data["date"])
-        # For Canadian elections: federal doesn't need organisation in group ID,
-        # but provincial, territorial, and municipal do
-        if all_data["election_type"].election_type not in [
-            "federal",
-            "municipal",  # Municipal elections may not always need org in group ID
-        ]:
+        # For Canadian elections: provincial and territorial need organisation in group ID,
+        # but federal and municipal do not
+        if all_data["election_type"].election_type in ["provincial", "territorial"]:
             builder.with_organisation(organisation)
         date_id = builder.build_election_group()
 
@@ -452,7 +449,7 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
                 group_id = date_id
 
         # Special case where we have no divs for an org that should have them.
-        # This is generally due to an upcoming boundary change that's not been finalized yet.
+        # This is generally due to an upcoming boundary change that's not been finalised yet.
         # In this case, we want to make an org ID but no div IDs
         if (
             all_data["election_type"].election_type in ["municipal", "provincial", "territorial"]
@@ -467,20 +464,10 @@ def create_ids_for_each_ballot_paper(all_data, subtypes=None):
             group_id.metadata = get_or_create_eco_group_metadata()
             all_ids.append(group_id)
 
-        # TODO: Handle Canadian-specific election types that don't have divisions
-        # (e.g., mayoral elections, if they're separate from municipal)
-        # For now, this is commented out as Canadian structure may differ
-        # if all_data["election_type"].election_type in ["mayor"]:
-        #     group_id = date_id
-        #     mayor_id = (
-        #         ElectionBuilder(all_data["election_type"], all_data["date"])
-        #         .with_organisation(organisation)
-        #         .with_source(all_data.get("source", ""))
-        #         .with_snooped_election(all_data.get("radar_id", None))
-        #         .build_ballot(group_id)
-        #     )
-        #     if mayor_id.election_id not in [e.election_id for e in all_ids]:
-        #         all_ids.append(mayor_id)
+        # TODO: Handle Canadian-specific election types that don't have divisions.
+        # For example, we may need to create an organisation-level ballot (with no divisions)
+        # for standalone mayoral elections or other non-divisional contests, once their
+        # structure in the Canadian dataset is fully defined.
 
         if subtypes:
             for subtype in subtypes:

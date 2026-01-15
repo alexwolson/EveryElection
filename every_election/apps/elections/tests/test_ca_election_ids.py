@@ -157,8 +157,7 @@ class TestCaIdBuilder(TestCase):
         builder.with_organisation("Québec City")
         builder.with_division("Ward 10 - Centre")
         # Should be slugified properly
-        assert "quebec-city" in builder.organisation_group_id.lower()
-        assert "ward-10" in builder.ballot_id.lower() or "centre" in builder.ballot_id.lower()
+        assert builder.ballot_id == "municipal.quebec-city.ward-10-centre.2022-10-24"
 
     def test_by_election_with_organisation(self):
         """Test by-election with organisation."""

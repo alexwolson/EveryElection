@@ -88,8 +88,8 @@ class BaseElectionCreatorMixIn:
         )
         cls.testshire_div = OrganisationDivisionFactory(
             divisionset=cls.testshire_div_set,
-            name="Ward 1",
-            slug="ward-1",
+            name="Ward 3",
+            slug="ward-3",
             seats_total=3,
         )
 

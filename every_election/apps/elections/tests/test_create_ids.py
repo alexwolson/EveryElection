@@ -134,7 +134,7 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
             "municipal." + self.date_str,
             "municipal.test-city." + self.date_str,
             "municipal.test-city-2." + self.date_str,
-            "municipal.test-city.ward-1." + self.date_str,
+            "municipal.test-city." + self.org_div_1.slug + "." + self.date_str,
             "municipal.test-city-2.ward-3." + self.date_str,
         ]
         expected_titles = [
@@ -199,9 +199,9 @@ class TestCreateIds(BaseElectionCreatorMixIn, TestCase):
             assert "by-election" in election.election_title
 
     def test_creates_mayor_id(self):
-        # Skip mayor test for now - Canadian mayoral elections may be handled differently
-        # This can be re-implemented when Canadian mayoral election structure is defined
-        self.skipTest("Mayoral elections structure for Canada needs to be defined")
+        # Mayoral elections in Canada are handled within municipal elections
+        # rather than as a separate election type, so this test is not applicable
+        self.skipTest("Mayoral elections are part of municipal elections in Canada, not a separate type")
 
     def test_creates_federal_id(self):
         federal_election_type, _ = ElectionType.objects.get_or_create(

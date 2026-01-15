@@ -6,17 +6,25 @@ This document describes the format for Canadian election IDs used in EveryElecti
 
 ## Format Structure
 
-Canadian election IDs follow this pattern:
+Canadian election IDs follow these patterns, depending on the level of specificity:
 
+### General Format (with all components)
 ```
 [type].[jurisdiction].[division].[date]
 ```
+
+### Format Variations
+- Election group (date-level): `[type].[date]`
+- Organisation group (jurisdiction-level): `[type].[jurisdiction].[date]`
+- Ballot (division-level): `[type].[jurisdiction].[division].[date]`
 
 With an optional `.by` segment for by-elections:
 
 ```
 [type].[jurisdiction].[division].by.[date]
 ```
+
+Note: The jurisdiction component is optional and may be omitted for federal elections.
 
 ## Components
 
