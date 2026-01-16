@@ -15,9 +15,3 @@ This is how Ralph maintains continuity across iterations.
 
 ## Session History
 
-
-### 2026-01-16 18:23:38
-**Session 1 started** (model: opus-4.5-thinking)
-
-### 2026-01-16 18:28:15
-**Session 1 started** (model: opus-4.5-thinking)
