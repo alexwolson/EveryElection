@@ -113,3 +113,6 @@ every_election/assets-src/vendor/
 
 # CDK
 cdk.out
+
+# Ralph config (may contain API key)
+.cursor/ralph-config.json
