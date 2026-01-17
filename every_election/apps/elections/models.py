@@ -5,7 +5,6 @@ from enum import Enum, unique
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.db.models.functions import Distance
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files import File
 from django.db import models, transaction
@@ -18,15 +17,9 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django_extensions.db.models import TimeStampedModel
 from storages.backends.s3boto3 import S3Boto3Storage
-from uk_election_ids.datapackage import ID_REQUIREMENTS, VOTING_SYSTEMS
-from uk_election_timetables.calendars import Country
-from uk_election_timetables.election_ids import (
-    NoSuchElectionTypeError,
-    from_election_id,
-)
-from uk_geo_utils.models import Onspd
 
 from .baker import send_event
+from .ca_election_metadata import CA_ID_REQUIREMENTS, CA_VOTING_SYSTEMS
 from .managers import PrivateElectionsManager, PublicElectionsManager
 
 
@@ -198,7 +191,7 @@ class Election(TimeStampedModel):
         blank=True,
         choices=[
             *[(None, "No ID Required")],
-            *[(req, ID_REQUIREMENTS[req]["name"]) for req in ID_REQUIREMENTS],
+            *[(req, CA_ID_REQUIREMENTS[req]["name"]) for req in CA_ID_REQUIREMENTS],
         ],
     )
 
@@ -261,7 +254,7 @@ class Election(TimeStampedModel):
     voting_system = models.CharField(
         max_length=100,
         null=True,
-        choices=[(vs, VOTING_SYSTEMS[vs]["name"]) for vs in VOTING_SYSTEMS],
+        choices=[(vs, CA_VOTING_SYSTEMS[vs]["name"]) for vs in CA_VOTING_SYSTEMS],
     )
     explanation = models.ForeignKey(
         "elections.Explanation",
@@ -470,54 +463,25 @@ class Election(TimeStampedModel):
         return self.get_id()
 
     def get_example_postcode(self):
-        if not self.group_type and self.geography:
-            return (
-                Onspd.objects.filter(location__within=self.geography.geography)
-                .filter(
-                    location__dwithin=(self.geography.geography.centroid, 0.08)
-                )
-                .annotate(
-                    distance=Distance(
-                        "location", self.geography.geography.centroid
-                    )
-                )
-                .order_by("distance")
-                .first()
-            )
+        """
+        Returns an example postal code for this election's geography.
+        
+        NOTE: Canadian postal code lookup not yet implemented.
+        This is a placeholder for future implementation.
+        """
+        # TODO: Implement Canadian postal code lookup when data source is available
         return None
 
     @property
     def get_timetable(self):
-        country_map = {
-            "WLS": Country.WALES,
-            "ENG": Country.ENGLAND,
-            "NIR": Country.NORTHERN_IRELAND,
-            "SCT": Country.SCOTLAND,
-            "GBN": None,
-        }
-        area = self.division or self.organisation
-        if not area:
-            return None
-
-        territory_code = area.territory_code or self.organisation.territory_code
-        if not territory_code:
-            return None
-
-        try:
-            timetable = from_election_id(
-                self.election_id, country=country_map[territory_code]
-            ).timetable
-        except NoSuchElectionTypeError:
-            return None
-
-        if not self.requires_voter_id:
-            timetable = [
-                date
-                for date in timetable
-                if date["event"] != "VAC_APPLICATION_DEADLINE"
-            ]
-
-        return timetable
+        """
+        Returns the election timetable.
+        
+        NOTE: Canadian election timetable calculation not yet implemented.
+        This is a placeholder for future implementation.
+        """
+        # TODO: Implement Canadian election timetables when requirements are defined
+        return None
 
     def get_id(self):
         if self.election_id:
@@ -549,21 +513,25 @@ class Election(TimeStampedModel):
         return None
 
     @property
-    def ynr_link(self):
-        if self.identifier_type in ["organisation", "ballot"]:
-            return (
-                "https://candidates.democracyclub.org.uk/elections/{}".format(
-                    self.election_id
-                )
-            )
+    def candidates_link(self):
+        """
+        Returns a link to view candidates for this election.
+        
+        NOTE: Canadian candidates database link not yet implemented.
+        This is a placeholder for future implementation.
+        """
+        # TODO: Implement link to Canadian candidates database when available
         return None
 
     @property
-    def whocivf_link(self):
-        if self.identifier_type in ["organisation", "ballot"]:
-            return "https://whocanivotefor.co.uk/elections/{}".format(
-                self.election_id
-            )
+    def voter_info_link(self):
+        """
+        Returns a link to voter information for this election.
+        
+        NOTE: Canadian voter info link not yet implemented.
+        This is a placeholder for future implementation.
+        """
+        # TODO: Implement link to Canadian voter info when available
         return None
 
     def get_organisation_geography(self):

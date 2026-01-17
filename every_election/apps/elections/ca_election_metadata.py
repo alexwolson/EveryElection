@@ -1,7 +1,8 @@
 """
 Canadian Election Metadata
 
-Defines election types, voting systems, and other metadata for Canadian elections.
+Defines election types, voting systems, ID requirements, and other metadata
+for Canadian elections.
 """
 
 # Valid Canadian election types
@@ -55,7 +56,37 @@ CA_VOTING_SYSTEMS = {
         "name": "First Past the Post",
         "description": "Single member plurality voting system",
     },
-    # Add other systems as needed (e.g., STV, PR, etc.)
+    "AV": {
+        "name": "Alternative Vote",
+        "description": "Ranked choice voting system (used in some municipal elections)",
+    },
+    "STV": {
+        "name": "Single Transferable Vote",
+        "description": "Multi-member proportional representation system",
+    },
+}
+
+# Canadian voter ID requirements
+# Canadian elections require voters to prove identity and address
+# See Elections Canada: https://www.elections.ca/content.aspx?section=vot&dir=ids&document=index&lang=e
+CA_ID_REQUIREMENTS = {
+    "federal": {
+        "name": "Federal Election ID",
+        "description": "One piece of government-issued photo ID with name and address, "
+                       "or two pieces of ID (one with name, one with address)",
+    },
+    "provincial": {
+        "name": "Provincial Election ID",
+        "description": "Requirements vary by province - typically similar to federal requirements",
+    },
+    "territorial": {
+        "name": "Territorial Election ID",
+        "description": "Requirements vary by territory",
+    },
+    "municipal": {
+        "name": "Municipal Election ID",
+        "description": "Requirements vary by municipality - typically similar to provincial requirements",
+    },
 }
 
 # Major Canadian municipalities (to start with)

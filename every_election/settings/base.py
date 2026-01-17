@@ -85,7 +85,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_filters",
     "corsheaders",
-    "uk_geo_utils",
     "dc_design_system",
     "whitenoise",
 ]
