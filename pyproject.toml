@@ -1,7 +1,7 @@
 [project]
 name = "EveryElection"
 version = "0.0.0"
-description = "For recording every election in the UK"
+description = "For recording every election in Canada"
 readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
@@ -28,9 +28,6 @@ dependencies = [
     "requests==2.32.4",
     "retry2==0.9.5",
     "scrapy==2.12.0",
-    "uk-election-ids==0.10.0",
-    "uk-election-timetables==4.2.3",
-    "uk-geo-utils==0.18.0",
     "dc-django-utils",
     "dc-design-system",
     "python-dotenv==1.0.1",
