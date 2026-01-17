@@ -16,14 +16,6 @@ from organisations.models import (
 from elections.ca_election_ids import CaIdBuilder
 from elections.ca_election_metadata import CA_ELECTION_TYPES
 
-# TODO: Remove UK-specific imports once fully migrated
-# from uk_election_ids.datapackage import ELECTION_TYPES
-# from uk_election_ids.election_ids import IdBuilder
-# from uk_election_ids.metadata_tools import (
-#     IDRequirementsMatcher,
-#     VotingSystemMatcher,
-# )
-
 CACHE = {
     "voting_systems": {},
     "election_types": {},

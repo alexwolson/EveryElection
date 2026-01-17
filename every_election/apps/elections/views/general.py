@@ -9,9 +9,9 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
+from elections.ca_election_metadata import CA_ELECTION_TYPES
 from elections.forms import NoticeOfElectionForm
 from elections.models import ByElectionReason, Document, Election, ElectionType
-from uk_election_ids.datapackage import ELECTION_TYPES
 
 
 class ElectionTypesView(ListView):
@@ -25,38 +25,33 @@ class ReferenceDefinitionView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ELECTION_TYPES is optimised for fast
-        # lookups and not duplicating information.
-        # We need to transform ELECTION_TYPES into a data structure
+        # Transform CA_ELECTION_TYPES into a data structure
         # which is more optimised for generating HTML in a template:
         election_types_table = []
         for et_key, et_record in OrderedDict(
-            sorted(ELECTION_TYPES.items())
+            sorted(CA_ELECTION_TYPES.items())
         ).items():
-            et_record["slug"] = et_key
-            et_record["subtype"] = None
+            table_rec = et_record.copy()
+            table_rec["slug"] = et_key
+            table_rec["subtype"] = None
+            table_rec["can_have_orgs"] = et_key != "federal"  # Federal has no org segment
+            table_rec["can_have_divs"] = et_record.get("can_have_divs", True)
 
-            if et_record["slug"] == "senedd":
-                table_rec = et_record.copy()
-                table_rec["name"] += " (2026-05-07 onwards)"
-                election_types_table.append(table_rec)
-            if et_record["subtypes"]:
+            if et_record.get("subtypes"):
                 # if we've got subtypes, duplicate the
                 # election type data for each subtype
                 for s_record in et_record["subtypes"]:
-                    table_rec = et_record.copy()
-                    if et_record["slug"] == "senedd":
-                        table_rec["name"] += " (before 2026-05-07)"
-                    table_rec["subtype"] = s_record
+                    sub_rec = table_rec.copy()
+                    sub_rec["subtype"] = s_record
                     # subtype data takes precedence if it exists
                     if "can_have_orgs" in s_record:
-                        table_rec["can_have_orgs"] = s_record["can_have_orgs"]
+                        sub_rec["can_have_orgs"] = s_record["can_have_orgs"]
                     if "can_have_divs" in s_record:
-                        table_rec["can_have_divs"] = s_record["can_have_divs"]
-                    election_types_table.append(table_rec)
+                        sub_rec["can_have_divs"] = s_record["can_have_divs"]
+                    election_types_table.append(sub_rec)
             else:
-                # otherwise just shove it in the list
-                election_types_table.append(et_record)
+                # otherwise just add it to the list
+                election_types_table.append(table_rec)
 
         context["election_types"] = election_types_table
         context["by_election_reasons"] = ByElectionReason.choices

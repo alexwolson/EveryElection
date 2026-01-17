@@ -1,10 +1,12 @@
+"""
+Query helpers for elections.
+
+NOTE: Canadian postal code lookup is not yet implemented.
+This module contains placeholder code for future implementation.
+"""
+
 import abc
 import logging
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.forms import ValidationError
-from localflavor.gb.forms import GBPostcodeField
-from uk_geo_utils.geocoders import OnspdGeocoder
 
 logger = logging.getLogger(__name__)
 
@@ -23,32 +25,61 @@ class BasePostcodeLookup(metaclass=abc.ABCMeta):
         pass
 
 
-class ONSPDPostcodeLookup(BasePostcodeLookup):
+class CanadianPostcodeLookup(BasePostcodeLookup):
+    """
+    Placeholder for Canadian postal code lookup.
+    
+    Canadian postal codes follow the format A1A 1A1 (alternating letters and digits).
+    
+    TODO: Implement Canadian postal code geocoding when data source is available.
+    Potential data sources:
+    - Statistics Canada postal code data
+    - Canada Post postal code files
+    """
+
     def __init__(self, postcode):
-        try:
-            self.geocoder = OnspdGeocoder(postcode)
-        except ObjectDoesNotExist:
-            raise PostcodeError("No location information")
+        super().__init__(postcode)
+        # TODO: Implement Canadian postal code geocoding
+        raise PostcodeError("Canadian postal code lookup not yet implemented")
 
     @property
     def point(self):
-        centre = self.geocoder.centroid
-        if not centre:
-            raise PostcodeError("No location information")
-        return centre
+        # TODO: Implement geocoding logic
+        raise PostcodeError("Canadian postal code lookup not yet implemented")
 
 
 def get_point_from_postcode(postcode):
-    validator = GBPostcodeField()
-    try:
-        postcode = validator.clean(postcode)
-    except ValidationError:
-        raise PostcodeError("Invalid Postcode")
-
-    methods = [ONSPDPostcodeLookup]
-    for method in methods:
-        try:
-            return method(postcode).point
-        except PostcodeError:
-            continue
-    raise PostcodeError
+    """
+    Get geographic point from a Canadian postal code.
+    
+    NOTE: Not yet implemented for Canadian postal codes.
+    
+    Args:
+        postcode: A Canadian postal code (e.g., "M5V 3L9")
+        
+    Returns:
+        A geographic point
+        
+    Raises:
+        PostcodeError: If postcode lookup fails or is not implemented
+    """
+    # Basic Canadian postal code validation
+    # Format: A1A 1A1 (letter-digit-letter space digit-letter-digit)
+    postcode = postcode.replace(" ", "").upper()
+    
+    if len(postcode) != 6:
+        raise PostcodeError("Invalid Canadian postal code format")
+    
+    # Check format pattern
+    if not (
+        postcode[0].isalpha() and
+        postcode[1].isdigit() and
+        postcode[2].isalpha() and
+        postcode[3].isdigit() and
+        postcode[4].isalpha() and
+        postcode[5].isdigit()
+    ):
+        raise PostcodeError("Invalid Canadian postal code format")
+    
+    # For now, postal code lookup is not implemented
+    raise PostcodeError("Canadian postal code lookup not yet implemented")

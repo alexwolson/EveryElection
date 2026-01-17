@@ -233,3 +233,60 @@ class CaIdBuilder:
     def __repr__(self) -> str:
         """String representation of the builder."""
         return f"CaIdBuilder(election_type={self.election_type}, date={self.date}, ballot_id={self.ballot_id})"
+
+
+def validate(election_id: str) -> bool:
+    """
+    Validate a Canadian election ID.
+    
+    Checks that the election ID follows the correct format:
+    - Starts with a valid election type (federal, provincial, territorial, municipal)
+    - Ends with a valid date in YYYY-MM-DD format
+    - Contains only valid characters (lowercase letters, digits, hyphens, periods)
+    
+    Args:
+        election_id: The election ID to validate
+        
+    Returns:
+        True if the ID is valid, False otherwise
+    """
+    import re
+    
+    if not election_id or not isinstance(election_id, str):
+        return False
+    
+    # Check for valid characters only
+    if not re.match(r'^[a-z0-9\-\.]+$', election_id):
+        return False
+    
+    parts = election_id.split('.')
+    
+    # Must have at least 2 parts (type and date)
+    if len(parts) < 2:
+        return False
+    
+    # First part must be a valid election type
+    if parts[0] not in CA_ELECTION_TYPES:
+        return False
+    
+    # Last part must be a valid date
+    date_part = parts[-1]
+    try:
+        # Check date format YYYY-MM-DD
+        if not re.match(r'^\d{4}-\d{2}-\d{2}$', date_part):
+            return False
+        # Validate it's a real date
+        year, month, day = map(int, date_part.split('-'))
+        from datetime import date as date_type
+        date_type(year, month, day)
+    except (ValueError, TypeError):
+        return False
+    
+    # Check for 'by' segment - must be second to last if present
+    if 'by' in parts:
+        by_index = parts.index('by')
+        # 'by' should be second to last (before date)
+        if by_index != len(parts) - 2:
+            return False
+    
+    return True

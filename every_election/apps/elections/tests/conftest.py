@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import Group
+from elections.ca_election_metadata import CA_ELECTION_TYPES
 from elections.models import ElectionSubType, ElectionType, ModerationStatus
-from uk_election_ids.datapackage import ELECTION_TYPES
 
 
 @pytest.fixture(autouse=True)
@@ -19,12 +19,12 @@ def core_elections_data():
     # We need a moderators group for some core views
     Group.objects.get_or_create(name="moderators")
 
-    # Set up election types as defined in `uk-election-ids`
-    for type_name, info in ELECTION_TYPES.items():
+    # Set up election types as defined for Canadian elections
+    for type_name, info in CA_ELECTION_TYPES.items():
         election_type, _ = ElectionType.objects.get_or_create(
             election_type=type_name, defaults={"name": info["name"]}
         )
-        for subtype in info["subtypes"]:
+        for subtype in info.get("subtypes", []):
             ElectionSubType.objects.update_or_create(
                 election_type=election_type,
                 election_subtype=subtype["election_subtype"],

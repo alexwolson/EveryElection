@@ -5,6 +5,7 @@ from api import filters
 from django.conf import settings
 from django.db.models import Prefetch
 from django.http import Http404
+from elections.ca_election_ids import validate
 from elections.models import (
     Election,
     ElectionSubType,
@@ -17,7 +18,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
-from uk_election_ids.election_ids import validate
 
 from .serializers import (
     ElectionGeoSerializer,
