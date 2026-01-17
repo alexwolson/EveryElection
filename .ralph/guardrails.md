@@ -23,5 +23,3 @@
 
 ## Learned Signs
 
-(Signs added from observed failures will appear below)
-

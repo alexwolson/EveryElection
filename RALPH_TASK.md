@@ -1,93 +1,145 @@
 ---
-task: Adapt EveryElection for Canada
-test_command: "pytest every_election/apps/elections/tests/test_ca_election_ids.py -v"
+task: Rewrite EveryElection from UK to Canadian election data system
+completion_criteria:
+  - Remove uk-election-ids, uk-election-timetables, uk-geo-utils dependencies from pyproject.toml
+  - Create Canadian election ID builder (ca_election_ids.py) following docs/ca-election-ids.md specification
+  - Replace UK election types with Canadian types (federal, provincial, territorial, municipal)
+  - Replace UK organisation types with Canadian equivalents (parliament, provincial-legislature, territorial-legislature, municipal-council)
+  - Replace UK territory codes (WLS, ENG, NIR, SCT, GBN) with Canadian province/territory codes (AB, BC, MB, NB, NL, NS, NT, NU, ON, PE, QC, SK, YT)
+  - Remove UK-specific constants (GSS codes, police areas, combined authorities, ONSPD postcode data)
+  - Update Organisation model ORGTYPES choices for Canadian government bodies
+  - Update elections/models.py to remove UK package imports and use Canadian election ID logic
+  - Remove UK-specific timetable calculation (get_timetable property) - not needed for Canadian version
+  - Remove UK-specific postcode lookup (get_example_postcode, Onspd references) - not needed for Canadian version
+  - Update add_election_types management command for Canadian election types
+  - Update ElectionBuilder (elections/utils.py) to generate Canadian election IDs
+  - Remove or update UK-specific fixtures (onspd.json, boundaryline data)
+  - Update API serializers to remove UK-specific fields
+  - Update templates to remove UK-specific references (ynr_link, whocivf_link properties)
+  - Remove UK-specific organisation constants (POLICE_AREA_NAME_TO_GSS, COMBINED_AUTHORITY_SLUG_TO_GSS, ORG_CURIE_TO_MAPIT_AREA_TYPE, etc.)
+  - Update organisation boundary imports to support Canadian data sources (design for future implementation)
+  - Update or remove UK-specific tests that reference UK election types, organisations, or geography
+  - Ensure all Python imports are updated and no references to removed UK packages remain
+  - All existing tests pass (or are appropriately updated/removed for Canadian context)
+max_iterations: 30
+test_command: "cd /Users/alex/repos/EveryElection && python manage.py test --settings=every_election.settings.testing"
 ---
 
-# Task: Adapt EveryElection for Canada
+# Task: Rewrite EveryElection for Canadian Election Data
 
-Adapt the EveryElection Django application from UK-specific implementation to support Canadian elections at all levels (Federal, Provincial/Territorial, and Municipal).
+Convert this Django-based election tracking system from UK elections to Canadian elections. The UK-specific functionality should be completely removed (not dual-support). Focus on federal, provincial, and territorial elections, with the data model designed to support municipal elections in the future.
 
-## Requirements
+## Context
 
-The system needs to be adapted for:
-1. Canadian election ID format (replacing UK's `uk-election-ids`)
-2. Canadian geographic data sources (postal codes, boundaries, electoral districts)
-3. Canadian election types and organizations
-4. Canadian election timetables and voting systems
-5. Canadian-specific terminology and UI text
+### Current UK Structure (to be removed)
+- **UK Packages**: `uk-election-ids`, `uk-election-timetables`, `uk-geo-utils`
+- **UK Election Types**: sp (Scottish Parliament), gla (Greater London Authority), naw/senedd (Welsh), nia (Northern Ireland), parl (UK Parliament), europarl, local, mayor, pcc
+- **UK Organisation Types**: combined-authority, sp, gla, local-authority, naw, senedd, nia, parl, police-area, europarl
+- **UK Territory Codes**: WLS, ENG, NIR, SCT, GBN
+- **UK Geography**: GSS codes, ONSPD postcode database, BoundaryLine imports
+
+### Target Canadian Structure
+- **Canadian Election Types**: federal, provincial, territorial, municipal (future)
+- **Canadian Organisation Types**: parliament, provincial-legislature, territorial-legislature, municipal-council (future)
+- **Canadian Province/Territory Codes**: AB, BC, MB, NB, NL, NS, NT, NU, ON, PE, QC, SK, YT
+- **Canadian Election ID Format**: See `docs/ca-election-ids.md` for full specification
+
+### Canadian Election ID Examples
+```
+federal.2025-04-28                           # Federal general election
+federal.toronto-centre.by.2024-06-24         # Federal by-election
+provincial.ontario.2022-06-02                # Ontario provincial election
+provincial.ontario.toronto-danforth.by.2023-03-27  # Ontario by-election
+territorial.yukon.2021-04-12                 # Yukon territorial election
+```
 
 ## Success Criteria
 
-1. [x] Canadian Election ID System implemented (`CaIdBuilder` with hierarchical IDs)
-2. [x] Election metadata updated (federal, provincial, territorial, municipal types)
-3. [x] `ElectionBuilder` uses Canadian ID system instead of UK
-4. [x] All tests updated to use Canadian election types and examples
-5. [ ] Replace UK postcode lookup with Canadian postal code geocoding
-6. [ ] Replace UK boundary imports with Canadian boundary sources (Elections Canada, provincial sources)
-7. [ ] Update Organisation model for Canadian organization types
-8. [ ] Update geographic constants (GSS codes → Canadian identifiers)
-9. [ ] Update election timetables (replace `uk-election-timetables` with Canadian calendar)
-10. [ ] Create Canadian data import commands (federal ridings, provincial districts, municipal boundaries)
-11. [ ] Remove UK-specific dependencies (`uk-election-ids`, `uk-election-timetables`, `uk-geo-utils`)
-12. [ ] Update all templates and UI text for Canadian terminology
+The task is complete when ALL of the following are true:
 
-## Completed Work
+- [ ] Remove uk-election-ids, uk-election-timetables, uk-geo-utils dependencies from pyproject.toml
+- [ ] Create Canadian election ID builder (ca_election_ids.py) following docs/ca-election-ids.md specification
+- [ ] Replace UK election types with Canadian types (federal, provincial, territorial, municipal)
+- [ ] Replace UK organisation types with Canadian equivalents (parliament, provincial-legislature, territorial-legislature, municipal-council)
+- [ ] Replace UK territory codes (WLS, ENG, NIR, SCT, GBN) with Canadian province/territory codes (AB, BC, MB, NB, NL, NS, NT, NU, ON, PE, QC, SK, YT)
+- [ ] Remove UK-specific constants (GSS codes, police areas, combined authorities, ONSPD postcode data)
+- [ ] Update Organisation model ORGTYPES choices for Canadian government bodies
+- [ ] Update elections/models.py to remove UK package imports and use Canadian election ID logic
+- [ ] Remove UK-specific timetable calculation (get_timetable property) - not needed for Canadian version
+- [ ] Remove UK-specific postcode lookup (get_example_postcode, Onspd references) - not needed for Canadian version
+- [ ] Update add_election_types management command for Canadian election types
+- [ ] Update ElectionBuilder (elections/utils.py) to generate Canadian election IDs
+- [ ] Remove or update UK-specific fixtures (onspd.json, boundaryline data)
+- [ ] Update API serializers to remove UK-specific fields
+- [ ] Update templates to remove UK-specific references (ynr_link, whocivf_link properties)
+- [ ] Remove UK-specific organisation constants (POLICE_AREA_NAME_TO_GSS, COMBINED_AUTHORITY_SLUG_TO_GSS, ORG_CURIE_TO_MAPIT_AREA_TYPE, etc.)
+- [ ] Update organisation boundary imports to support Canadian data sources (design for future implementation)
+- [ ] Update or remove UK-specific tests that reference UK election types, organisations, or geography
+- [ ] Ensure all Python imports are updated and no references to removed UK packages remain
+- [ ] All existing tests pass (or are appropriately updated/removed for Canadian context)
 
-### Phase 1: Canadian Election ID System ✅
+## Constraints
 
-- Created `ca_election_ids.py` with `CaIdBuilder` class
-- Created `ca_election_metadata.py` with Canadian election types
-- Updated `ElectionBuilder` to use `CaIdBuilder`
-- Updated all utility functions to use `CA_ELECTION_TYPES`
-- Created comprehensive test suite (`test_ca_election_ids.py`)
-- Updated all existing tests to use Canadian election types
-- Created documentation (`docs/ca-election-ids.md`)
-- Updated README.md with Canadian context
+1. **No dual UK/Canadian support** - Remove UK functionality entirely, don't try to support both
+2. **Design for future municipal support** - The data model should accommodate municipal elections even though they're not the initial focus
+3. **No postal code lookup needed** - Don't implement Canadian postal code lookup (may be added later)
+4. **No timetable calculations needed** - Don't implement Canadian election timetables (may be added later)
+5. **Preserve core architecture** - Keep the Election/Organisation/Division model structure, just adapt for Canadian context
+6. **Database migrations** - Create appropriate migrations for model changes
+7. **Keep tests working** - Update tests to use Canadian data, don't just delete them
 
-**Examples of Canadian Election IDs:**
-- `federal.2025-04-28` - Federal general election
-- `federal.toronto-centre.by.2024-06-24` - Federal by-election
-- `provincial.ontario.2022-06-02` - Ontario provincial election
-- `provincial.ontario.toronto-danforth.2022-06-02` - Provincial riding election
-- `municipal.toronto.2022-10-24` - Toronto municipal election
+## Key Files to Modify
 
-## Next Steps
+### Dependencies
+- `pyproject.toml` - Remove UK packages
 
-1. Replace UK postcode system with Canadian postal code geocoding
-2. Import Canadian boundary data (federal ridings, provincial districts, municipalities)
-3. Update Organisation model structure for Canadian types
-4. Implement Canadian election timetable calculator
-5. Update all remaining UK-specific code paths
+### Models
+- `every_election/apps/elections/models.py` - Remove UK imports, update ID logic
+- `every_election/apps/organisations/models/organisations.py` - Update ORGTYPES
+- `every_election/apps/organisations/constants.py` - Replace UK constants
 
-## Example Usage
+### Election ID Generation
+- `every_election/apps/elections/utils.py` - Update ElectionBuilder for Canadian IDs
+- Create `every_election/apps/elections/utils/ca_election_ids.py` (new file)
 
-```python
-from elections.utils import ElectionBuilder
-from elections.models import ElectionType
-from datetime import date
+### Management Commands
+- `every_election/apps/elections/management/commands/add_election_types.py` - Canadian types
 
-# Federal election
-election_type = ElectionType.objects.get(election_type="federal")
-builder = ElectionBuilder(election_type, date(2025, 4, 28))
-election = builder.build_election_group()
-# election.election_id == "federal.2025-04-28"
+### API
+- `every_election/apps/api/serializers.py` - Remove UK-specific fields
+- `every_election/apps/api/views.py` - Update as needed
 
-# Provincial election with division
-election_type = ElectionType.objects.get(election_type="provincial")
-builder = ElectionBuilder(election_type, date(2022, 6, 2))
-builder.with_organisation(ontario_org)
-builder.with_division(toronto_danforth_division)
-ballot = builder.build_ballot(group)
-# ballot.election_id == "provincial.ontario.toronto-danforth.2022-06-02"
-```
+### Tests
+- Various test files - Update to use Canadian data
 
 ---
 
 ## Ralph Instructions
 
-1. Work on the next incomplete criterion (marked [ ])
-2. Check off completed criteria (change [ ] to [x])
-3. Run tests after changes
-4. Commit your changes frequently
-5. When ALL criteria are [x], output: `<ralph>COMPLETE</ralph>`
-6. If stuck on the same issue 3+ times, output: `<ralph>GUTTER</ralph>`
+### Before Starting Work
+1. Read `.ralph/guardrails.md` for any learned constraints
+2. Read `.ralph/progress.md` to understand what has been completed
+3. Run `git status` to see current state
+
+### Working Protocol
+1. Work on ONE unchecked criterion at a time from the Success Criteria above
+2. Make focused, incremental changes
+3. Run the test command after significant changes: `python manage.py test --settings=every_election.settings.testing`
+4. Commit after completing each criterion with a descriptive message
+
+### After Completing Work
+1. Update `.ralph/progress.md` with what was done
+2. Check off completed criteria in this file (change `- [ ]` to `- [x]`)
+3. Commit all changes including updated state files
+4. If stuck or context is running low, commit current progress and stop
+
+### Git Protocol
+- Always commit working code
+- Use descriptive commit messages that reference the criterion being completed
+- If a change breaks tests, fix before committing or revert
+
+### If Tests Fail
+1. Read the error message carefully
+2. Check if the failure is due to UK-specific code that needs updating
+3. Fix the issue or update the test for Canadian context
+4. Add any learnings to `.ralph/guardrails.md`
