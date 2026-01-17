@@ -18,10 +18,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
-from organisations.constants import (
-    ORG_CURIE_TO_MAPIT_AREA_TYPE,
-    PARENT_TO_CHILD_AREAS,
-)
 from organisations.models import (
     Organisation,
     OrganisationDivision,
@@ -43,8 +39,6 @@ class Command(ReadFromCSVMixin, BaseCommand):
     S3_BUCKET_NAME = settings.LGBCE_BUCKET
 
     def handle(self, *args, **options):
-        self.org_curie_to_area_type = ORG_CURIE_TO_MAPIT_AREA_TYPE
-
         csv_data = self.load_data(options)
 
         # first pass over the csv builds the division sets
@@ -58,9 +52,17 @@ class Command(ReadFromCSVMixin, BaseCommand):
         self.save_all()
 
     def get_org_from_line(self, line):
+        """
+        Get organisation from CSV line.
+        
+        The CSV should specify the organisation type (e.g., federal, provincial-legislature,
+        territorial-legislature, municipal-council).
+        """
+        org_type = line.get("Organisation Type", "provincial-legislature")
+        
         if line["Start Date"]:
             return Organisation.objects.all().get_by_date(
-                organisation_type="local-authority",
+                organisation_type=org_type,
                 official_identifier=line["Organisation ID"],
                 date=datetime.datetime.strptime(
                     line["Start Date"], "%Y-%m-%d"
@@ -71,7 +73,7 @@ class Command(ReadFromCSVMixin, BaseCommand):
         # If we throw an exception here, we will need to call this again
         # with a start date on this divisionset
         return Organisation.objects.get(
-            organisation_type="local-authority",
+            organisation_type=org_type,
             official_identifier=line["Organisation ID"],
         )
 
@@ -136,10 +138,19 @@ class Command(ReadFromCSVMixin, BaseCommand):
         return identifier
 
     def get_division_type_from_registers(self, line):
-        curie = ":".join(
-            [line["Organisation ID type"], line["Organisation ID"]]
-        )
-        return PARENT_TO_CHILD_AREAS[self.org_curie_to_area_type[curie]][0]
+        """
+        Get division type from the CSV line.
+        
+        For Canadian divisions, the division type should be specified in the CSV
+        or derived from the organisation type.
+        """
+        # If division_type is provided in the CSV, use it
+        if "division_type" in line and line["division_type"]:
+            return line["division_type"]
+        
+        # Default division types based on Canadian electoral system
+        # These should be updated based on actual Canadian data sources
+        return "ED"  # Electoral District - default for Canadian ridings
 
     def create_div_from_line(self, div_set, identifier, line):
         # just in case...

@@ -1,14 +1,17 @@
 """
-Import a single boundary based on identifier
-Also pass a --source flag indicating where the boundary came from
+Import a single boundary based on identifier.
+Also pass a --source flag indicating where the boundary came from.
 
 The --all flag may also optionally be passed if a code exists in multiple
 DivisionSets and we want to import the boundary against all occurrences.
 
+NOTE: This command is designed for boundary data imports. For Canadian implementation,
+this will need to be updated to work with Canadian boundary data sources such as:
+- Statistics Canada electoral district boundaries
+- Provincial electoral boundary commissions
+
 Example calls:
-manage.py boundaryline_import_boundaries --code gss:W09000043 --source bdline_gb-2018-05 -f /foo/bar/bdline_gb-2018-05
-manage.py boundaryline_import_boundaries --code gss:W09000019 --source bdline_gb-2018-05 --all -u "http://parlvid.mysociety.org/os/bdline_gb-2018-05.zip"
-manage.py boundaryline_import_boundaries --codes /foo/bar/codes.json --source bdline_gb-2018-05 -f /foo/bar/bdline_gb-2018-05
+manage.py boundaryline_import_boundaries --code id:12345 --source statcan-2024 -f /foo/bar/boundaries
 """
 
 import json
@@ -23,7 +26,6 @@ from organisations.boundaries.constants import (
 )
 from organisations.boundaries.helpers import split_code
 from organisations.boundaries.management.base import BaseBoundaryLineCommand
-from organisations.constants import REGISTER_SUBTYPE_TO_BOUNDARYLINE_TYPE
 from organisations.models import (
     DivisionGeography,
     OrganisationDivision,
@@ -132,19 +134,25 @@ class Command(BaseBoundaryLineCommand):
         return BoundaryLine(os.path.join(self.base_dir, "Data", "GB", filename))
 
     def import_org_geography(self, org_geo):
+        """
+        Import organisation geography from boundary data.
+        
+        NOTE: This method needs to be updated for Canadian boundary sources.
+        Currently preserves structure but removes UK-specific logic.
+        """
         if org_geo.gss in SPECIAL_CASES:
             filename = SPECIAL_CASES[org_geo.gss]["file"]
             proxy_code = SPECIAL_CASES[org_geo.gss]["code"]
             bl = BoundaryLine(
-                os.path.join(self.base_dir, "Data", "GB", filename)
+                os.path.join(self.base_dir, "Data", filename)
             )
             geom = self.get_geography_from_feature(
                 bl.get_feature_by_field("code", proxy_code)
             )
         else:
-            area_type = REGISTER_SUBTYPE_TO_BOUNDARYLINE_TYPE[
-                org_geo.organisation.organisation_subtype
-            ]
+            # TODO: Implement Canadian boundary type lookup
+            # For now, use a default approach based on organisation_type
+            area_type = org_geo.organisation.organisation_type
             bl = self.open_boundaryline(area_type)
             geom = self.get_geography_from_feature(
                 bl.get_feature_by_field("code", org_geo.gss)

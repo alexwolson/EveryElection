@@ -26,20 +26,20 @@ class OrganisationManager(models.QuerySet):
 
 class Organisation(UpdateElectionsTimestampedModel, DateDisplayMixin):
     """
-    An organisation that can hold an election in the UK
+    An organisation that can hold an election in Canada.
+    
+    Supports federal, provincial, territorial, and municipal governments.
     """
 
     ORGTYPES = Choices(
-        ("combined-authority", "combined-authority"),
-        ("sp", "sp"),
-        ("gla", "gla"),
-        ("local-authority", "local-authority"),
-        ("naw", "naw"),
-        ("senedd", "senedd"),
-        ("nia", "nia"),
-        ("parl", "parl"),
-        ("police-area", "police-area"),
-        ("europarl", "europarl"),
+        # Federal level
+        ("federal", "federal"),  # House of Commons / Parliament of Canada
+        # Provincial level (10 provinces)
+        ("provincial-legislature", "provincial-legislature"),
+        # Territorial level (3 territories)
+        ("territorial-legislature", "territorial-legislature"),
+        # Municipal level
+        ("municipal-council", "municipal-council"),
     )
 
     official_identifier = models.CharField(

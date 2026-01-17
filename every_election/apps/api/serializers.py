@@ -1,3 +1,4 @@
+from elections.ca_election_metadata import CA_VOTING_SYSTEMS
 from elections.models import (
     Election,
     ElectionSubType,
@@ -14,7 +15,6 @@ from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer,
     GeometrySerializerMethodField,
 )
-from uk_election_ids.datapackage import VOTING_SYSTEMS
 
 
 class OrganisationHyperlinkedIdentityField(
@@ -207,10 +207,13 @@ class BaseElectionSerializer(serializers.ModelSerializer):
             or obj.group_type == "subtype"
             or not obj.group_type
         ):
-            system = VOTING_SYSTEMS.get(obj.voting_system, None)
+            system = CA_VOTING_SYSTEMS.get(obj.voting_system, None)
             if system:
-                system["slug"] = obj.voting_system
-            return system
+                # Return a copy with slug added
+                result = dict(system)
+                result["slug"] = obj.voting_system
+                return result
+            return None
         return None
 
     def get_children(self, obj: Election) -> list[str]:

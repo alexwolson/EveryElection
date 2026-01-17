@@ -26,8 +26,8 @@
         where ALPHA is [a-z] and DIGIT is [0-9].</p>
 
     <p>Examples of this could be
-        <code>parl.2015-05-07</code> or
-        <code>local.ashfield.hucknall-north.by.2017-10-12</code>
+        <code>federal.2025-04-28</code> or
+        <code>provincial.ontario.toronto-danforth.by.2023-03-27</code>
     </p>
 
     <h3>Segments</h3>
@@ -59,38 +59,35 @@
         by the winner(s) of this election.</p>
 
     <h4>Election subtype</h4>
-    <p>Subtypes are used when an official body (Scottish Parliament,
-        Greater London Authority, Senedd before 2026) elects members
-        by two different methods. In this case, elections are split into
+    <p>Subtypes are used when an official body elects members
+        by different methods. In this case, elections are split into
         sub-elections based on voting system.</p>
 
     <h4>Organisation</h4>
     <p>An administrative body which can hold an election.</p>
 
     <p>When an election type only covers a single organisation the
-        organisation segment of the ID is excluded. This is to prevent
-        <code>parl.parl</code>, <code>senedd.senedd</code> and so on where the
-        organisation name and election type are the same.</p>
+        organisation segment of the ID is excluded. For example, federal
+        elections omit the organisation segment since there is only one
+        federal parliament.</p>
 
-    <p>Organisation segments must use official names. Organisation names are
-        sourced from
-        <a href="https://www.registers.service.gov.uk/">gov.uk registers</a>.
-        Short form versions of names should be used i.e:
-        <code>local.birmingham.2018-05-03</code> not
-        <code>local.birmingham-city-council.2017-05-04</code>.
+    <p>Organisation segments must use official names. For provincial and
+        territorial elections, this is the province or territory name
+        (e.g., <code>ontario</code>, <code>british-columbia</code>, <code>yukon</code>).
+        For municipal elections, this is the municipality name
+        (e.g., <code>toronto</code>, <code>vancouver</code>).
     </p>
 
     <h4>Division</h4>
     <p>A sub-part of an organisation that a candidate can be elected
-        to represent. This could be a ward in the case of a local election
-        or a constituency in the case of a parliamentary election.</p>
+        to represent. This could be a ward in the case of a municipal election
+        or an electoral district (riding) in the case of a federal or
+        provincial election.</p>
 
-    <p>Division segments must use names as they appear in legislation.
-        For boundaries that are already in use, the names of parliamentary
-        constituencies, district wards and county electoral divisions are
-        sourced from
-        <a href="https://www.ordnancesurvey.co.uk/business-and-government/products/boundary-line.html">OS Boundary Line</a>.
-        Names of new boundaries are extracted from Electoral Change Orders.</p>
+    <p>Division segments must use names as they appear in official sources.
+        For federal electoral districts, names are sourced from Elections Canada.
+        Provincial and territorial electoral district names come from the
+        respective provincial/territorial electoral bodies.</p>
 
     <h4>By-election</h4>
     <p>By-elections are indicated with the segment <code>by</code>.</p>
@@ -125,35 +122,33 @@
         a single ballot paper. Each level above this is a group id.</p>
 
     <p>For example, the ballot id<br />
-        <code>senedd.c.aberavon.2021-05-06</code> is a child of the (subtype) group<br />
-        <code>senedd.c.2021-05-06</code> which is in turn a child of the (election) group<br />
-        <code>senedd.2021-05-06</code></p>
+        <code>provincial.ontario.toronto-danforth.2022-06-02</code> is a child of the (organisation) group<br />
+        <code>provincial.ontario.2022-06-02</code> which is in turn a child of the (election) group<br />
+        <code>provincial.2022-06-02</code></p>
 
     <p>Similarly, the ballot id<br />
-        <code>local.worcestershire.bewdley.2017-05-04</code> is a child of the (organisation) group<br />
-        <code>local.worcestershire.2017-05-04</code> which is in turn a child of the (election) group<br />
-        <code>local.2017-05-04</code></p>
+        <code>municipal.toronto.ward-10.2022-10-24</code> is a child of the (organisation) group<br />
+        <code>municipal.toronto.2022-10-24</code> which is in turn a child of the (election) group<br />
+        <code>municipal.2022-10-24</code></p>
 
     <p>The <code>by</code> segment only applies to a ballot id, so<br />
-        <code>parl.oldham-west-and-royton.by.2015-12-03</code> is a child of <br />
-        <code>parl.2015-12-03</code>. The group id does not include the
-        <code>by</code> segment, even if all of its childen are by-elections.
+        <code>federal.toronto-centre.by.2024-06-24</code> is a child of <br />
+        <code>federal.2024-06-24</code>. The group id does not include the
+        <code>by</code> segment, even if all of its children are by-elections.
     </p>
 
     <h3>Implementations</h3>
-    <p><a href="https://github.com/DemocracyClub/uk-election-ids">uk-election-ids</a>
-        - A python package with includes a builder object, slugging algorithm and
-        validation rules for creating identifiers that conform to this specification.
+    <p>The <code>ca_election_ids</code> module in this project provides a builder
+        object, slugging algorithm, and validation rules for creating identifiers
+        that conform to this specification for Canadian elections.
     </p>
     <h2 id="by-election-reasons">By-Election Reason Definition Reference</h2>
 
     <p>
         There are various reasons why a by-election may be triggered.
         Not all of these can be applied to all election types.
-        e.g. a recall petition is only used in Westminster, and failure to attend meetings applies to local government.
-        The choices here are in part based on:
-        UK Electoral Commission guidance on casual vacancies:
-        https://www.electoralcommission.org.uk/guidance-returning-officers-administering-local-government-elections-england/casual-vacancies-and-elections/how-casual-vacancies-occur
+        For example, a recall petition applies to federal elections,
+        while other reasons may be specific to provincial or municipal contexts.
     </p>
     <div class="ds-table">
         <table>
