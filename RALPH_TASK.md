@@ -57,25 +57,25 @@ territorial.yukon.2021-04-12                 # Yukon territorial election
 
 The task is complete when ALL of the following are true:
 
-- [ ] Remove uk-election-ids, uk-election-timetables, uk-geo-utils dependencies from pyproject.toml
-- [ ] Create Canadian election ID builder (ca_election_ids.py) following docs/ca-election-ids.md specification
-- [ ] Replace UK election types with Canadian types (federal, provincial, territorial, municipal)
-- [ ] Replace UK organisation types with Canadian equivalents (parliament, provincial-legislature, territorial-legislature, municipal-council)
-- [ ] Replace UK territory codes (WLS, ENG, NIR, SCT, GBN) with Canadian province/territory codes (AB, BC, MB, NB, NL, NS, NT, NU, ON, PE, QC, SK, YT)
-- [ ] Remove UK-specific constants (GSS codes, police areas, combined authorities, ONSPD postcode data)
-- [ ] Update Organisation model ORGTYPES choices for Canadian government bodies
-- [ ] Update elections/models.py to remove UK package imports and use Canadian election ID logic
-- [ ] Remove UK-specific timetable calculation (get_timetable property) - not needed for Canadian version
-- [ ] Remove UK-specific postcode lookup (get_example_postcode, Onspd references) - not needed for Canadian version
-- [ ] Update add_election_types management command for Canadian election types
-- [ ] Update ElectionBuilder (elections/utils.py) to generate Canadian election IDs
-- [ ] Remove or update UK-specific fixtures (onspd.json, boundaryline data)
-- [ ] Update API serializers to remove UK-specific fields
-- [ ] Update templates to remove UK-specific references (ynr_link, whocivf_link properties)
-- [ ] Remove UK-specific organisation constants (POLICE_AREA_NAME_TO_GSS, COMBINED_AUTHORITY_SLUG_TO_GSS, ORG_CURIE_TO_MAPIT_AREA_TYPE, etc.)
-- [ ] Update organisation boundary imports to support Canadian data sources (design for future implementation)
-- [ ] Update or remove UK-specific tests that reference UK election types, organisations, or geography
-- [ ] Ensure all Python imports are updated and no references to removed UK packages remain
+- [x] Remove uk-election-ids, uk-election-timetables, uk-geo-utils dependencies from pyproject.toml
+- [x] Create Canadian election ID builder (ca_election_ids.py) following docs/ca-election-ids.md specification
+- [x] Replace UK election types with Canadian types (federal, provincial, territorial, municipal)
+- [x] Replace UK organisation types with Canadian equivalents (parliament, provincial-legislature, territorial-legislature, municipal-council)
+- [x] Replace UK territory codes (WLS, ENG, NIR, SCT, GBN) with Canadian province/territory codes (AB, BC, MB, NB, NL, NS, NT, NU, ON, PE, QC, SK, YT)
+- [x] Remove UK-specific constants (GSS codes, police areas, combined authorities, ONSPD postcode data)
+- [x] Update Organisation model ORGTYPES choices for Canadian government bodies
+- [x] Update elections/models.py to remove UK package imports and use Canadian election ID logic
+- [x] Remove UK-specific timetable calculation (get_timetable property) - not needed for Canadian version
+- [x] Remove UK-specific postcode lookup (get_example_postcode, Onspd references) - not needed for Canadian version
+- [x] Update add_election_types management command for Canadian election types
+- [x] Update ElectionBuilder (elections/utils.py) to generate Canadian election IDs
+- [x] Remove or update UK-specific fixtures (onspd.json, boundaryline data)
+- [x] Update API serializers to remove UK-specific fields
+- [x] Update templates to remove UK-specific references (ynr_link, whocivf_link properties)
+- [x] Remove UK-specific organisation constants (POLICE_AREA_NAME_TO_GSS, COMBINED_AUTHORITY_SLUG_TO_GSS, ORG_CURIE_TO_MAPIT_AREA_TYPE, etc.)
+- [x] Update organisation boundary imports to support Canadian data sources (design for future implementation)
+- [x] Update or remove UK-specific tests that reference UK election types, organisations, or geography
+- [x] Ensure all Python imports are updated and no references to removed UK packages remain
 - [ ] All existing tests pass (or are appropriately updated/removed for Canadian context)
 
 ## Constraints
